@@ -28,6 +28,7 @@ def home():
 
 @app.route("/result", methods=["POST"])
 def search():
+    app.logger.debug("Enter Search")
     domain = request.form['domain']
 
     cached_response = cache.get(domain)
