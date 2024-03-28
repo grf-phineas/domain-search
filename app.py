@@ -64,7 +64,8 @@ def search():
             error_message = '; '.join(error_messages)
         cache.set(domain, {'error': error_message})
         flash(error_message, 'error')
-        return redirect(url_for('home'))
+        # return redirect(url_for('home'))
+        return "Hello"
     
 def verifier(email):
     api_key = os.getenv("HUNTER_API_KEY")
