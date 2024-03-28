@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, flash, redirect, url_for
 import requests
 import os
 from flask_caching import Cache
+import logging
 
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
@@ -9,6 +10,17 @@ app.secret_key = os.urandom(16)
 app.config['CACHE_TYPE'] = 'SimpleCache'
 app.config['CACHE_DEFAULT_TIMEOUT'] = 1800
 cache = Cache(app)
+
+app.logger.setLevel(logging.INFO)
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+handler.setFormatter(formatter)
+
+app.logger.addHandler(handler)
 
 @app.route("/")
 def home():
@@ -20,7 +32,7 @@ def search():
 
     cached_response = cache.get(domain)
     if cached_response:
-        print('cache hit')
+        app.logger.debug(f"Cache hit for domain {domain}")
         if 'error' in cached_response:
             flash(cached_response['error'], 'error')
             return redirect(url_for('home'))
@@ -30,18 +42,16 @@ def search():
     api_key = os.getenv("HUNTER_API_KEY")
     url = f"https://api.hunter.io/v2/domain-search?domain={domain}&api_key={api_key}"
     response = requests.get(url)
-    print(response)
+    app.logger.debug(f"Response status code: {response.status_code}")
     if response.status_code == 200:
         data = response.json()
         emails = data['data']['emails']
         print(emails)
         for email in emails:
-            print(type(email))
-            print(email)
             status = verifier(email['value'])
             email['status'] = status
         cache.set(domain, emails)
-        print(emails)
+        app.logger.debug(f"Emails: {emails}")
         return render_template("result.html", emails=emails)
     
     else:
