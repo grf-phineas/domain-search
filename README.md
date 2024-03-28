@@ -2,6 +2,7 @@
 ```
 git clone https://gitea.com/renfei-cdic/DomainSearch.git
 cd domain-name
+.\env\Scripts\activate
 pip install -r requirements.txt
 ```
 
