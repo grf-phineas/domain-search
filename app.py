@@ -43,6 +43,7 @@ def search():
     api_key = os.getenv("HUNTER_API_KEY")
     url = f"https://api.hunter.io/v2/domain-search?domain={domain}&api_key={api_key}"
     response = requests.get(url)
+    app.logger.debug(f"URL: {url}")
     app.logger.debug(f"Response status code: {response.status_code}")
     if response.status_code == 200:
         data = response.json()
@@ -64,8 +65,8 @@ def search():
             error_message = '; '.join(error_messages)
         cache.set(domain, {'error': error_message})
         flash(error_message, 'error')
-        # return redirect(url_for('home'))
-        return "Hello"
+        return redirect(url_for('home'))
+        # return "Hello"
     
 def verifier(email):
     api_key = os.getenv("HUNTER_API_KEY")
